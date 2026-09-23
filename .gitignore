@@ -3,3 +3,5 @@ MyRedisCLI
 dump.my_rdb
 
 build
+node_modules
+my_redis_server.exe

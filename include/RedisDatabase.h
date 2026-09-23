@@ -2,6 +2,7 @@
 #define REDIS_DATABASE_H
 
 #include <string>
+#include <cstddef>
 #include <mutex>
 #include <unordered_map>
 #include <vector>
@@ -20,6 +21,7 @@ public:
     bool get(const std::string& key, std::string& value);
     std::vector<std::string> keys();
     std::string type(const std::string& key);
+    long long ttl(const std::string& key);
     bool del(const std::string& key);
     bool expire(const std::string& key, int seconds);
     void purgeExpired();
@@ -27,7 +29,7 @@ public:
 
     // List Opreations
     std::vector<std::string> lget(const std::string& key);
-    ssize_t llen(const std::string& key);
+    std::ptrdiff_t llen(const std::string& key);
     void lpush(const std::string& key, const std::string& value);
     void rpush(const std::string& key, const std::string& value);
     bool lpop(const std::string& key, std::string& value);
@@ -44,7 +46,7 @@ public:
     std::unordered_map<std::string, std::string> hgetall(const std::string& key);
     std::vector<std::string> hkeys(const std::string& key);
     std::vector<std::string> hvals(const std::string& key);
-    ssize_t hlen(const std::string& key);
+    std::ptrdiff_t hlen(const std::string& key);
     bool hmset(const std::string& key, const std::vector<std::pair<std::string, std::string>>& fieldValues);
 
     // Persistance: Dump / load the database from a file.

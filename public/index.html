@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redis Clone / Console</title><link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar"><div class="brand"><span class="mark">R</span><span>REDIS CLONE</span><small>COMMAND CONSOLE</small></div><div class="status"><i id="statusDot"></i><span id="statusText">CONNECTING</span><span class="divider"></span><span>TCP 127.0.0.1:6379</span></div></header>
+  <main class="shell">
+    <section class="hero"><div><p class="eyebrow">REAL-TIME OPERATIONS</p><h1>Inspect the wire.</h1><p class="subhead">A live control surface for your C++ Redis-compatible server.</p></div><button id="wireButton" class="button secondary">RAW WIRE <span>↗</span></button></section>
+    <div class="grid">
+      <section class="panel terminal-panel"><div class="panel-head"><div><span class="eyebrow">01 / REPL</span><h2>Command runner</h2></div><span class="chip" id="latency">-- ms</span></div><div id="terminal" class="terminal" aria-live="polite"></div><form id="commandForm" class="command-line"><span>redis&gt;</span><input id="commandInput" autocomplete="off" spellcheck="false" placeholder="try SET hello world"><button class="button run" type="submit">RUN <span>↵</span></button></form><div class="hint">↑ ↓ history <span>·</span> RESP over TCP</div></section>
+      <section class="panel inspector-panel"><div class="panel-head"><div><span class="eyebrow">02 / DATABASE</span><h2>Key inspector</h2></div><div class="actions"><label class="toggle"><input id="pollToggle" type="checkbox"><span></span> LIVE</label><button id="refreshButton" class="icon-button" title="Refresh keys">↻</button></div></div><div class="table-wrap"><table><thead><tr><th>KEY</th><th>TYPE</th><th>TTL</th><th>STATE</th></tr></thead><tbody id="keyRows"><tr><td colspan="4" class="empty">Run KEYS * to inspect the database.</td></tr></tbody></table></div><div class="table-foot"><span id="keyCount">0 keys</span><span id="lastRefresh">NOT YET SCANNED</span></div></section>
+      <section class="panel stress-panel"><div class="panel-head"><div><span class="eyebrow">03 / LOAD TEST</span><h2>Throughput probe</h2></div><button id="stressButton" class="button accent">RUN 500 OPS <span>→</span></button></div><div class="metric-grid"><div class="metric"><small>OPS / SEC</small><strong id="ops">--</strong></div><div class="metric"><small>AVG LATENCY</small><strong id="avg">--</strong></div><div class="metric"><small>P99 LATENCY</small><strong id="p99">--</strong></div><div class="metric"><small>SUCCESS / FAIL</small><strong><b id="success">0</b> / <em id="failed">0</em></strong></div></div><div class="progress"><span id="progressBar"></span></div><p id="stressState" class="muted">Sequential commands on one persistent bridge connection.</p></section>
+    </div>
+  </main>
+  <aside id="drawer" class="drawer"><div class="drawer-head"><div><span class="eyebrow">WIRE INSPECTOR</span><h2>Last exchange</h2></div><button id="closeWire" class="icon-button">×</button></div><div class="wire-block"><label>SENT / RESP ARRAY</label><pre id="requestWire">No command sent.</pre></div><div class="wire-block"><label>RECEIVED / RAW RESP</label><pre id="responseWire">No response received.</pre></div><div class="wire-meta"><span>ROUND TRIP</span><strong id="wireTime">--</strong></div></aside><div id="scrim" class="scrim"></div><script src="/app.js"></script>
+</body>
+</html>

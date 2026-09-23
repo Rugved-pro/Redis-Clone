@@ -24,6 +24,7 @@ bool RedisDatabase::flushAll() {
 void RedisDatabase::set(const std::string& key, const std::string& value) {
     std::lock_guard<std::mutex> lock(db_mutex);
     kv_store[key] = value;
+    expiry_map.erase(key);
 }
 
 bool RedisDatabase::get(const std::string& key, std::string& value) {
@@ -65,6 +66,24 @@ std::string RedisDatabase::type(const std::string& key) {
     else return "none";    
 }
 
+long long RedisDatabase::ttl(const std::string& key) {
+    std::lock_guard<std::mutex> lock(db_mutex);
+    purgeExpired();
+    bool exists = (kv_store.find(key) != kv_store.end()) ||
+                  (list_store.find(key) != list_store.end()) ||
+                  (hash_store.find(key) != hash_store.end());
+    if (!exists)
+        return -2;
+
+    auto expiry = expiry_map.find(key);
+    if (expiry == expiry_map.end())
+        return -1;
+
+    auto remaining = std::chrono::duration_cast<std::chrono::seconds>(
+        expiry->second - std::chrono::steady_clock::now()).count();
+    return remaining < 0 ? 0 : remaining;
+}
+
 bool RedisDatabase::del(const std::string& key) {
     std::lock_guard<std::mutex> lock(db_mutex);
     purgeExpired();
@@ -72,7 +91,8 @@ bool RedisDatabase::del(const std::string& key) {
     erased |= kv_store.erase(key) > 0;
     erased |= list_store.erase(key) > 0;
     erased |= hash_store.erase(key) > 0;
-    return false;
+    expiry_map.erase(key);
+    return erased;
 }
 
 bool RedisDatabase::expire(const std::string& key, int seconds) {
@@ -148,7 +168,7 @@ std::vector<std::string> RedisDatabase::lget(const std::string& key) {
     return {}; 
 }
 
-ssize_t RedisDatabase::llen(const std::string& key) {
+std::ptrdiff_t RedisDatabase::llen(const std::string& key) {
     std::lock_guard<std::mutex> lock(db_mutex);
     auto it = list_store.find(key);
     if (it != list_store.end()) 
@@ -326,7 +346,7 @@ std::vector<std::string> RedisDatabase::hvals(const std::string& key) {
     return values;
 }
 
-ssize_t RedisDatabase::hlen(const std::string& key) {
+std::ptrdiff_t RedisDatabase::hlen(const std::string& key) {
     std::lock_guard<std::mutex> lock(db_mutex);
     auto it = hash_store.find(key);
     return (it != hash_store.end()) ? it->second.size() : 0;

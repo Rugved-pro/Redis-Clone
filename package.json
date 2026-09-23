@@ -1,0 +1,11 @@
+{
+  "name": "redis-clone-console",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "start": "node bridge.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

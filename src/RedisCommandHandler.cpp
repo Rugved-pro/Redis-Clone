@@ -129,6 +129,12 @@ static std::string handleExpire(const std::vector<std::string>& tokens, RedisDat
     }
 }
 
+static std::string handleTtl(const std::vector<std::string>& tokens, RedisDatabase& db) {
+    if (tokens.size() < 2)
+        return "-Error: TTL requires key\r\n";
+    return ":" + std::to_string(db.ttl(tokens[1])) + "\r\n";
+}
+
 static std::string handleRename(const std::vector<std::string>& tokens, RedisDatabase& db) {
     if (tokens.size() < 3)
         return "-Error: RENAME requires old key and new key\r\n";
@@ -155,7 +161,7 @@ static std::string handleLget(const std::vector<std::string>& tokens, RedisDatab
 static std::string handleLlen(const std::vector<std::string>& tokens, RedisDatabase& db) {
     if (tokens.size() < 2) 
         return "-Error: LLEN requires key\r\n";
-    ssize_t len = db.llen(tokens[1]);
+    std::ptrdiff_t len = db.llen(tokens[1]);
     return ":" + std::to_string(len) + "\r\n";
 }
 
@@ -165,7 +171,7 @@ static std::string handleLpush(const std::vector<std::string>& tokens, RedisData
     for (size_t i = 2; i < tokens.size(); ++i) {
         db.lpush(tokens[1], tokens[i]);
     }
-    ssize_t len = db.llen(tokens[1]);
+    std::ptrdiff_t len = db.llen(tokens[1]);
     return ":" + std::to_string(len) + "\r\n";
 }
 
@@ -175,7 +181,7 @@ static std::string handleRpush(const std::vector<std::string>& tokens, RedisData
     for (size_t i = 2; i < tokens.size(); ++i) {
         db.rpush(tokens[1], tokens[i]);
     }    
-    ssize_t len = db.llen(tokens[1]);
+    std::ptrdiff_t len = db.llen(tokens[1]);
     return ":" + std::to_string(len) + "\r\n";
 }
 
@@ -309,7 +315,7 @@ static std::string handleHvals(const std::vector<std::string>& tokens, RedisData
 static std::string handleHlen(const std::vector<std::string>& tokens, RedisDatabase& db) {
     if (tokens.size() < 2) 
         return "-Error: HLEN requires key\r\n";
-    ssize_t len = db.hlen(tokens[1]);
+    std::ptrdiff_t len = db.hlen(tokens[1]);
     return ":" + std::to_string(len) + "\r\n";
 }
 
@@ -355,6 +361,8 @@ std::string RedisCommandHandler::processCommand(const std::string& commandLine) 
         return handleDel(tokens, db);
     else if (cmd == "EXPIRE")
         return handleExpire(tokens, db);
+    else if (cmd == "TTL")
+        return handleTtl(tokens, db);
     else if (cmd == "RENAME")
         return handleRename(tokens, db);
     // List Operations
